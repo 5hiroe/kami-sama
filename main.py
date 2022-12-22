@@ -1,31 +1,26 @@
 import random
-import unidecode
+
 import discord
 import Paginator
+import unidecode
 from discord.ext import commands
 from pymongo import MongoClient
-
-# Remove accents and special characters from a string (for the search)
-def formatText(text):
-    newText = unidecode.unidecode(text).lower()
-    newText.replace(" ", "")
-    newText.replace("-", "")
-    newText.replace("_", "")
-    newText.replace("'", "")
-    return newText
 
 # Create the Discord Embed for a given card
 def createEmbed(anime):
     genres = " - ".join(anime['genres'])
-    themes = " - ".join(anime['themes'])
     embed = discord.Embed(title=anime['name_en'], color=random.choice(colors))
-    
+
     embed.add_field(name= "Status", value= anime['status'],  inline= True)
     embed.add_field(name= "Episodes", value= anime['nb_episodes'], inline= True)
     embed.add_field(name= "Synopsis", value= anime['synopsis'], inline= False)
-    embed.add_field(name= "First Episode", value= anime['date_sortie'], inline= True)
-    embed.add_field(name= "Last Episode", value= anime['date_dernier_episode'], inline= True)
-    embed.add_field(name= "Themes",  value= themes, inline= False)
+    if (anime['date_sortie'] != ''):
+        embed.add_field(name= "First Episode", value= anime['date_sortie'], inline= True)
+    if (anime['date_dernier_episode'] != ''):
+        embed.add_field(name= "Last Episode", value= anime['date_dernier_episode'], inline= True)
+    if (len(anime['themes']) > 0):
+        themes = " - ".join(anime['themes'])
+        embed.add_field(name= "Themes",  value= themes, inline= False)
     embed.add_field(name= "Genres", value= genres, inline= False)
 
     embed.set_image(url=anime['image'])
@@ -52,16 +47,16 @@ async def on_ready():
 # Command to get informations about the bot
 @bot.command()
 async def info(ctx):
-    await ctx.send('Je suis là pour vous aider !')
+    await ctx.send('Bonjour, je suis la déesse des animés, mais tu peux m\'appeler Kami-sama !\n\nVoici la liste des prières à effectuer pour user de mes (incroyales) services :\n\n- **!kami info** : Pour en savoir plus sur ta déesse préférée 🙏♥️\n- **!kami all** : Pour avoir la liste de tous les animés disponibles 📚\n- **!kami theme <thème>** : Pour avoir la liste des animés correspondant au thème demandé 🎭\n- **!kami genre <genre>** : Pour avoir la liste des animés correspondant au genre demandé 🏳️‍🌈\n- **!kami name <nom>** : Pour trouver un animé en fonction de son nom 🫵\n- **!kami lucky** : Pour avoir 10 animés au hasard (et faire de bonnes découvertes) 🎲\n- **!kami secret** : Pour que je te partage un secret connu des Dieux seulement ! 🤫\n\n\nSi tu as des questions, n\'hésite pas à me contacter !\nTrès bonne recherche à toi, Shōnen ! 🌸😇🌸')
 
 # Command to list all the animes in the database
 @bot.command()
 async def all(ctx):
-    liste=[]  
+    liste=[]
     for anime in db_anime.find():
         embed = createEmbed(anime)
         liste.append(embed)
-    
+
     if len(liste) > 0:
         await ctx.send('Voici la liste de tous les animes disponibles :')
         await Paginator.Simple().start(ctx, pages=liste)
@@ -72,7 +67,7 @@ async def all(ctx):
 @bot.command()
 async def theme(ctx, *, theme_name):
     liste=[]
-    for anime in db_anime.find({'themes': formatText(theme_name)}):
+    for anime in db_anime.find({'themes': { '$regex': theme_name, '$options': 'i' }}):
         embed = embed = createEmbed(anime)
         liste.append(embed)
     
@@ -86,7 +81,7 @@ async def theme(ctx, *, theme_name):
 @bot.command()
 async def genre(ctx, *, genre_name):
     liste=[]
-    for anime in db_anime.find({'genres': formatText(genre_name)}):
+    for anime in db_anime.find({'genres': { '$regex': genre_name, '$options': 'i' }}):
         embed = embed = createEmbed(anime)
         liste.append(embed)
 
@@ -100,7 +95,8 @@ async def genre(ctx, *, genre_name):
 @bot.command()
 async def name(ctx, *, name):
     liste=[]
-    for anime in db_anime.find({'name_lower': formatText(name)}): 
+    # re.compile((name), re.IGNORECASE
+    for anime in db_anime.find({'name_en': { '$regex': name, '$options': 'i' }}): 
         embed = embed = createEmbed(anime)
         liste.append(embed)
     
@@ -114,16 +110,22 @@ async def name(ctx, *, name):
 @bot.command()
 async def lucky(ctx):
     liste=[]
-    for anime in db_anime.aggregate([ { "$sample": { "size": 5 } } ]):
+    for anime in db_anime.aggregate([ { "$sample": { "size": 10 } } ]):
         embed = embed = createEmbed(anime)
         liste.append(embed)
     
     if len(liste) > 0:
-        await ctx.send("Fellin' Lucky? Voici 5 animés sélectionnés au hasard, J'espère qu'ils te plairont! 😘 :")
+        await ctx.send("Fellin' Lucky? Voici 10 animés sélectionnés au hasard, J'espère qu'ils te plairont! 😘 :")
         await Paginator.Simple().start(ctx, pages=liste)
     else:
         await ctx.send('Aucun anime ne correspond à ce nom')
 
+@bot.command()
+async def tg(ctx):
+    await ctx.send('https://tenor.com/view/judging-really-huh-judgingyou-gif-4584562')
 
+@bot.command()
+async def secret(ctx):
+    await ctx.send('https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713')
 # Run the bot
-bot.run('MTAzOTgyMTUyMTM4NTk1MTMwNA.G-TRi8.BZn-KXTJg_nCDpjlu6LkcsWbKhhSKL1G0T6KWI')
+bot.run('MTAzOTgyMTUyMTM4NTk1MTMwNA.GOKTia.XmzIfiBzL87IckPYw9utgFTs-4I4WEW-FVmjkY')
