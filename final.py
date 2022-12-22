@@ -9,7 +9,7 @@ import re
 
 def get_database():
     # This function connects to the MongoDB database using the provided connection string and returns the database object
-    CONNECTION_STRING = "mongodb+srv://discord:discord@cluster0.jjo7hnp.mongodb.net/?retryWrites=true&w=majority"
+    CONNECTION_STRING = "SperCoolMongoAddress"
     # Create a connection using MongoClient. You can import MongoClient or use pymongo.MongoClient
     client = MongoClient(CONNECTION_STRING)
     db_name = "kamisama"
