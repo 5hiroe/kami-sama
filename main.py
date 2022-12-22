@@ -28,7 +28,7 @@ def createEmbed(anime):
 
 
 # Connect to MongoDB
-client = MongoClient('mongodb+srv://discord:discord@cluster0.jjo7hnp.mongodb.net/?retryWrites=true&w=majority')
+client = MongoClient('SuperCoolMongoAddress')
 db = client['kamisama']
 print('Connected to MongoDB')
 db_anime = db['anime']
@@ -120,12 +120,15 @@ async def lucky(ctx):
     else:
         await ctx.send('Aucun anime ne correspond à ce nom')
 
+# Troll Command 1
 @bot.command()
 async def tg(ctx):
     await ctx.send('https://tenor.com/view/judging-really-huh-judgingyou-gif-4584562')
 
+# Troll Command 2
 @bot.command()
 async def secret(ctx):
     await ctx.send('https://tenor.com/view/rickroll-roll-rick-never-gonna-give-you-up-never-gonna-gif-22954713')
+    
 # Run the bot
-bot.run('MTAzOTgyMTUyMTM4NTk1MTMwNA.GOKTia.XmzIfiBzL87IckPYw9utgFTs-4I4WEW-FVmjkY')
+bot.run('SuperCoolDiscordBotKey')
